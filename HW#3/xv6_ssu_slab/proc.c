@@ -290,7 +290,7 @@ exit(void)
         wakeup1(initproc);
     }
   }
-  release(&ptable.lock);
+  //release(&ptable.lock);
   // Jump into the scheduler, never to return.
   curproc->state = ZOMBIE;
   sched();

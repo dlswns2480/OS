@@ -53,8 +53,8 @@ void slabinit(){
 
 
 
-	//initlock(&stable.lock, "stable");
-	//acquire(&stable.lock);
+	initlock(&stable.lock, "stable");
+	acquire(&stable.lock);
 	int init_size = 8;
 	for(int i=0; i<NSLAB; i++){
 		stable.slab[i].size = init_size;
@@ -69,7 +69,7 @@ void slabinit(){
 		memset(stable.slab[i].bitmap, 0, 4096);
 		stable.slab[i].page[stable.slab[i].num_pages++] = kalloc();
 	}
-	//release(&stable.lock);
+	release(&stable.lock);
 }
 
 char *kmalloc(int size){
@@ -79,7 +79,7 @@ char *kmalloc(int size){
 	char *addr = 0;
 	struct slab *s = 0;
 
-	//acquire(&stable.lock);
+	acquire(&stable.lock);
 
 
 	for(s = stable.slab; s < &stable.slab[NSLAB]; s++){
@@ -91,7 +91,7 @@ char *kmalloc(int size){
 	if(s->num_free_objects == 0){
 
 		if(s->num_pages >= MAX_PAGES_PER_SLAB){
-			//release(&stable.lock);
+			release(&stable.lock);
 			return 0;
 		}
 
@@ -99,7 +99,7 @@ char *kmalloc(int size){
 
 
 		if(s->page[s->num_pages] == 0){
-			//release(&stable.lock);
+			release(&stable.lock);
 			return 0;
 		}
 		
@@ -122,14 +122,14 @@ char *kmalloc(int size){
 		}
 	}
 	
-	//release(&stable.lock);
+	release(&stable.lock);
 	return addr;
 }
 
 void kmfree(char *addr, int size) {
     struct slab *s;
 
-    //acquire(&stable.lock);
+    acquire(&stable.lock);
 
     for (s = stable.slab; s < &stable.slab[NSLAB]; s++) {
         if (size <= s->size)
@@ -191,11 +191,11 @@ void kmfree(char *addr, int size) {
                 }
             }
 
-            //release(&stable.lock);
+            release(&stable.lock);
             return;
         }
     }
-	//release(&stable.lock);
+	release(&stable.lock);
     
 }
 
